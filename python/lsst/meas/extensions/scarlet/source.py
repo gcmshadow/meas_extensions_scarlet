@@ -1,10 +1,21 @@
 import numpy as np
 from scarlet.source import PointSource, ExtendedSource, SourceInitError
-from scarlet.component import BlendFlag
+from scarlet.component import BlendFlag, Component
 
 import lsst.afw.image as afwImage
 import lsst.afw.geom as afwGeom
 import lsst.afw.detection as afwDet
+
+
+class BlankSource(Component):
+    def __init__(self, skycoord, scene):
+        self.pixel_center = skycoord
+        sed = np.zeros((scene.B,))
+        morph = np.zeros((scene.Ny, scene.Nx))
+        super().__init__(sed=sed, morph=morph, fix_sed=True, fix_morph=True)
+
+    def update(self):
+        return self
 
 
 class LsstSource(ExtendedSource):
@@ -21,14 +32,27 @@ class LsstSource(ExtendedSource):
         xmin = bbox.getMinX()
         ymin = bbox.getMinY()
         sky_coord = np.array([peak.getIy()-ymin, peak.getIx()-xmin], dtype=int)
+        self.skipped = False
+
         try:
             super().__init__(sky_coord, scene, observations, bg_rms, obs_idx, thresh,
                              symmetric, monotonic, center_step, **component_kwargs)
         except SourceInitError:
             # If the source is too faint for background detection, initialize
             # it as a PointSource
-            PointSource.__init__(self, sky_coord, scene, observations, symmetric, monotonic,
-                                 center_step, **component_kwargs)
+            try:
+                PointSource.__init__(self, sky_coord, scene, observations, symmetric, monotonic,
+                                     center_step, **component_kwargs)
+            except SourceInitError:
+                # There is really no flux to use for initializing this source,
+                # so just use an empty placeholder.
+                # TODO: In the future we should probably just strip blank
+                # sources from the blend to save processing time, but that
+                # will require keeping track of source indices.
+                # DM-19790
+                BlankSource.__init__(self, sky_coord, scene)
+                self.skipped = True
+
         self.detectedPeak = peak
 
     def get_model(self, *parameters, observation=None):
