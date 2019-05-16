@@ -277,7 +277,7 @@ class ScarletDeblendTask(pipeBase.Task):
                                                  doc="Deblender skipped this source")
         self.modelCenter = afwTable.Point2DKey.addFields(schema, name="deblend_peak_center",
                                                          doc="Center used to apply constraints in scarlet",
-                                                         unit="Pixel")
+                                                         unit="pixel")
         self.modelCenterFlux = schema.addField('deblend_peak_instFlux', type=float, units='count',
                                                doc="The instFlux at the peak position of deblended mode")
         # self.log.trace('Added keys to schema: %s', ", ".join(str(x) for x in
