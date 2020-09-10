@@ -2,14 +2,8 @@
 # - Any package whose API is used directly should be listed explicitly.
 # - Common third-party packages can be assumed to be recursively included by
 #   the "base" package.
-setupRequired(base)
-setupRequired(afw)
-setupRequired(log)
 setupRequired(scarlet)
 setupRequired(scarlet_extensions)
-setupRequired(log)
-setupRequired(pex_config)
-setupRequired(pex_exceptions)
 setupRequired(pipe_base)
 setupRequired(meas_algorithms)
 
