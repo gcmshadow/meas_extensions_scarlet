@@ -7,8 +7,6 @@ setupRequired(scarlet_extensions)
 setupRequired(pipe_base)
 setupRequired(meas_algorithms)
 
-setupOptional(testdata_deblender)
-
 # The following is boilerplate for all packages.
 # See https://dmtn-001.lsst.io for details on LSST_LIBRARY_PATH.
 envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
